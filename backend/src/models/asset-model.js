@@ -59,9 +59,14 @@ const createAsset = async (values) => {
 
 const updateAsset = async (req, idA) => {
   const body = Object.entries(req);
+  console.log("req:", req);
+  console.log("iD a actualizar:", idA);
   let sentence = "UPDATE assets SET ";
   for (let i = 0; i < body.length; i++) {
-    if (i === body.length - 1) {
+    if (body[i][0] == "id_employee") {
+      sentence = sentence.concat(`${body[i][0]} = ${body[i][1]} `);
+      console.log("entro");
+    } else if (i === body.length - 1) {
       sentence = sentence.concat(`${body[i][0]} = "${body[i][1]}" `);
     } else {
       sentence = sentence.concat(`${body[i][0]} = "${body[i][1]}", `);
@@ -71,6 +76,8 @@ const updateAsset = async (req, idA) => {
   console.log(sentence);
 
   const result = await connection.query(sentence).spread((result) => result);
+  console.log("resultado ", result);
+
   return result;
 };
 

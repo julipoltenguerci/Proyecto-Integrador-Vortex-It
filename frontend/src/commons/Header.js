@@ -10,6 +10,8 @@ export const Header = () => {
   // --------- FUNCTIONS ---------
   const handleOnClickHome = () => navigate("/");
   const handleOnClickForm = () => navigate("/employee");
+  const handleOnClickFormAsset = () => navigate("/asset");
+  const handleOnClickListAsset = () => navigate("/assets");
 
   return (
     <Box>
@@ -31,6 +33,12 @@ export const Header = () => {
             </Button>
             <Button onClick={handleOnClickForm} color="inherit">
               Nuevo Empleado
+            </Button>
+            <Button onClick={handleOnClickFormAsset} color="inherit">
+              Nuevo Activo
+            </Button>
+            <Button onClick={handleOnClickListAsset} color="inherit">
+              Nuestros Activos
             </Button>
           </Stack>
         </Toolbar>

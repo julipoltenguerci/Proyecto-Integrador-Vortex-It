@@ -2,6 +2,7 @@
 const express = require("express");
 const dotEnv = require("dotenv");
 const routes = require("./routes");
+const cors = require("cors");
 
 //Configuración de variables de entorno
 dotEnv.config();
@@ -15,6 +16,7 @@ app.set("PORT", process.env.API_PORT || 8080);
 //Middleware para parsear body de req HTTP en formato JSON
 app.use(express.json({ limit: "50mb" }));
 
+app.use(cors());
 //Routes
 app.use("/api/v1", routes);
 

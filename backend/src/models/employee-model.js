@@ -21,14 +21,19 @@ const getAllEmployees = async (req) => {
       .map(([key, value]) => `${key} = "${value}"`)
       .join(" AND ");
 
+  const countQuery = `SELECT count(*) as total FROM employees ${
+    where ? `WHERE ${where}` : ""
+  }`;
+
   const finalQuery = `SELECT * FROM employees ${
     where ? `WHERE ${where}` : ""
   } ORDER BY ${orderBy} ${direction} 
   LIMIT ${limit} OFFSET ${offset}`;
 
   const [rows] = await connection.query(finalQuery);
+  const [totalRows] = await connection.query(countQuery);
 
-  return rows;
+  return { rows, totalRows };
 };
 
 const getEmployeeById = async (idE) => {

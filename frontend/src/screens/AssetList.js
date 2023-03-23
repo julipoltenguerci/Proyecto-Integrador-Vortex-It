@@ -2,11 +2,10 @@ import React from "react";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getEmployees } from "../actions/employeeActions";
+import { getAssets } from "../actions/assetActions";
 
 import {
   Paper,
-  //TextField,
   Table,
   TableBody,
   TableCell,
@@ -17,53 +16,51 @@ import {
   IconButton,
 } from "@mui/material";
 import { Delete, Visibility } from "@mui/icons-material";
-
-import { removeEmployee } from "../actions/employeeActions";
+import { removeAsset } from "../actions/assetActions";
 import { Dialog } from "../commons/Dialog";
 import { PageTitle } from "../commons/PageTitle";
 
 const columns = [
-  { id: "id_employee", label: "ID", minWidth: 50, align: "center" },
-  { id: "first_name", label: "Nombre", minWidth: 50, align: "center" },
-  { id: "last_name", label: "Apellido", minWidth: 50, align: "center" },
-  { id: "cuit", label: "Cuit", minWidth: 50, align: "center" },
-  { id: "rol", label: "Rol", minWidth: 50, align: "center" },
+  { id: "id_asset", label: "ID", minWidth: 50, align: "center" },
+  { id: "name", label: "Nombre", minWidth: 50, align: "center" },
+  { id: "type", label: "Tipo", minWidth: 50, align: "center" },
+  { id: "code", label: "Código", minWidth: 50, align: "center" },
+  { id: "id_employee", label: "ID Empleado", minWidth: 50, align: "center" },
   {
     id: "actions",
     label: "Acciones",
     minWidth: 50,
     align: "center",
-    component: (employee, viewAction, deleteAction) => (
+    component: (asset, viewAction, deleteAction) => (
       <>
-        <IconButton aria-label="view" onClick={() => viewAction(employee)}>
+        <IconButton aria-label="view" onClick={() => viewAction(asset)}>
           <Visibility />
         </IconButton>
 
-        <IconButton aria-label="delete" onClick={() => deleteAction(employee)}>
+        <IconButton aria-label="delete" onClick={() => deleteAction(asset)}>
           <Delete />
         </IconButton>
       </>
     ),
   },
 ];
-export const EmployeeList = () => {
+export const AssetList = () => {
   // ------------ HOOKS ------------
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getEmployees());
+    dispatch(getAssets());
   }, [dispatch]);
 
   const navigate = useNavigate();
 
-  const employees = useSelector((state) => state.employeesSlice.employees);
-  const totalRows = useSelector((state) => state.employeesSlice.totalRows);
+  const assets = useSelector((state) => state.assetsSlice.assets);
 
   const [page, setPage] = useState(0);
 
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [employeeToDelete, setEmployeeToDelete] = useState();
+  const [assetToDelete, setAssetToDelete] = useState();
 
   // ------------ FUNCTIONS ------------
 
@@ -74,9 +71,9 @@ export const EmployeeList = () => {
     setPage(0);
   }, []);
 
-  const employeesToDisplay = useMemo(
-    () => employees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [employees, page, rowsPerPage]
+  const assetsToDisplay = useMemo(
+    () => assets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [assets, page, rowsPerPage]
   );
 
   // Verificará si employees es un array antes de llamar a la función slice.
@@ -94,37 +91,26 @@ export const EmployeeList = () => {
   // }, [employees, page, rowsPerPage]);
 
   const handleViewAction = useCallback(
-    (employee) => navigate(`/employee/${employee.id_employee}`),
+    (asset) => navigate(`/asset/${asset.id_asset}`),
     [navigate]
   );
 
   const handleDeleteAction = useCallback(
-    (employee) => setEmployeeToDelete(employee),
+    (asset) => setAssetToDelete(asset),
     []
   );
 
   const handleAcceptDialog = useCallback(() => {
-    dispatch(removeEmployee(employeeToDelete));
-    setEmployeeToDelete();
-  }, [dispatch, employeeToDelete]);
+    dispatch(removeAsset(assetToDelete));
+    setAssetToDelete();
+  }, [dispatch, assetToDelete]);
 
   // ------------ RENDERS ------------
 
   return (
     <>
-      <PageTitle>Gestor de Empleados - Vortex IT</PageTitle>
+      <PageTitle>Gestor de Activos - Vortex IT</PageTitle>
       <Paper sx={{ width: "100%" }}>
-        {/* <TextField
-          id="standard-search"
-          label="Búsqueda de empleados"
-          type="search"
-        >
-          {" "}
-        </TextField>
-        <IconButton aria-label="search">
-          <Search />
-        </IconButton> */}
-
         <TableContainer sx={{ maxHeight: 500 }}>
           <Table>
             <TableHead>
@@ -145,9 +131,9 @@ export const EmployeeList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {totalRows ? (
-                employeesToDisplay.map((row) => (
-                  <TableRow hover tabIndex={-1} key={row.id_employee}>
+              {assets.length ? (
+                assetsToDisplay.map((row) => (
+                  <TableRow hover tabIndex={-1} key={row.id_asset}>
                     {columns.map((column) => {
                       const value = row[column.id];
 
@@ -173,7 +159,7 @@ export const EmployeeList = () => {
                     colSpan={6}
                     sx={{ color: "#9c27b0", textAlign: "center" }}
                   >
-                    No hay RRHH disponibles.
+                    No hay activos disponibles.
                   </TableCell>
                 </TableRow>
               )}
@@ -183,7 +169,7 @@ export const EmployeeList = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
-          count={totalRows}
+          count={assets.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -192,12 +178,12 @@ export const EmployeeList = () => {
       </Paper>
 
       {/* condic para eliminar empleado: setEmployee seteado para eliminar y haber aceptado  */}
-      {employeeToDelete && (
+      {assetToDelete && (
         <Dialog
           isOpen={true}
-          title={`¿Desea eliminar el empleado ${employeeToDelete.last_name} ${employeeToDelete.first_name}?`}
+          title={`¿Desea eliminar el activo ${assetToDelete.name}?`}
           closeLabel="Cancelar"
-          onClose={() => setEmployeeToDelete()}
+          onClose={() => setAssetToDelete()}
           acceptLabel="Eliminar"
           onAccept={handleAcceptDialog}
         ></Dialog>

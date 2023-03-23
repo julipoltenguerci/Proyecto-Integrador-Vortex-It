@@ -1,5 +1,5 @@
 const employeeModel = require("../models/employee-model");
-//const assetModel = require("../models/asset-model");
+const assetModel = require("../models/asset-model");
 const { NotFoundError } = require("../customError/Http-Error");
 const ResponseApi = require("../utils/responseApi");
 
@@ -8,7 +8,7 @@ const ResponseApi = require("../utils/responseApi");
 const getAllEmployees = async (req, res, next) => {
   try {
     const employees = await employeeModel.getAllEmployees(req);
-    employees.length === 0
+    employees.rows.length === 0
       ? next(new NotFoundError("No se encontraron empleados disponibles."))
       : res.json(
           new ResponseApi(
@@ -91,8 +91,8 @@ const updateEmployee = async (req, res, next) => {
 const deleteEmployee = async (req, res, next) => {
   try {
     const { idE } = req.params;
-    let empleadoToUpdate = await employeeModel.getEmployeeById(idE);
-    if (empleadoToUpdate.length == 0) {
+    let empleadoToDelete = await employeeModel.getEmployeeById(idE);
+    if (empleadoToDelete.length == 0) {
       res
         .status(404)
         .json(
@@ -105,17 +105,20 @@ const deleteEmployee = async (req, res, next) => {
         );
     }
     // Obtener los activos relacionados con el empleado que se va a eliminar
-    // const assets = await assetModel.getAssetsByEmployeeId(idE);
-    // console.log(assets);
+    const assets = await assetModel.getAssetsByEmployeeId(idE);
+    console.log(assets);
+
     // // Desvincular los activos del empleado antes de eliminarlo
-    // await Promise.all(
-    //   assets.map(async (asset) => {
-    //     console.log("antes de act");
-    //     await assetModel.updateAsset({ id_employee: null }, 6);
-    //   })
-    // );
+
+    await Promise.all(
+      assets.map(async (asset) => {
+        console.log("antes de act", asset.id_asset);
+        await assetModel.updateAsset({ id_employee: null }, asset.id_asset);
+      })
+    );
     // Eliminar el empleado
-    const result = await employeeModel.deleteEmployee(idE);
+    await employeeModel.deleteEmployee(idE);
+    //const result = await employeeModel.deleteEmployee(idE);
     res.json(
       new ResponseApi(
         true,

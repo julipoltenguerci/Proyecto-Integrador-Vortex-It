@@ -2,105 +2,97 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
-import { addEmployee, editEmployee } from "../actions/employeeActions";
+import { addAsset, editAsset } from "../actions/assetActions";
 import { Dialog } from "../commons/Dialog";
 import { PageTitle } from "../commons/PageTitle";
 import { Box, Button, Container, TextField } from "@mui/material";
 
-const getEmptyEmployee = () => ({
-  id_employee: 0,
-  first_name: "",
-  last_name: "",
-  cuit: "",
-  team_id: "",
-  join_date: "",
-  rol: "",
+const getEmptyAsset = () => ({
+  id_asset: "",
+  name: "",
+  type: "",
+  code: "",
+  brand: "",
+  description: "",
+  purchase_date: "",
+  id_employee: "",
 });
 
-export const EmployeeForm = () => {
+export const AssetForm = () => {
   // ------------ HOOKS ------------
   const dispatch = useDispatch();
 
-  const { id_employee } = useParams();
+  const { id_asset } = useParams();
 
   const navigate = useNavigate();
 
   const formRef = useRef();
 
-  const employees = useSelector((state) => state.employeesSlice.employees);
+  const assets = useSelector((state) => state.assetsSlice.assets);
 
-  const [employee, setEmployee] = useState(getEmptyEmployee());
+  const [asset, setAsset] = useState(getEmptyAsset());
 
   const [isEditing, setIsEditing] = useState(true);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (id_employee) {
-      console.log("id employee: ", typeof id_employee);
-      console.log("todos los empleados son: ", employees);
-      const employeeToEdit = employees.find(
-        (employee) => employee.id_employee === parseInt(id_employee)
-      );
-      console.log("empleado a editar", employeeToEdit);
-      if (employeeToEdit) {
-        setEmployee({ ...employeeToEdit });
+    if (id_asset) {
+      const assetToEdit = assets.find((asset) => asset.id_asset === id_asset);
+      if (assetToEdit) {
+        setAsset({ ...assetToEdit });
         setIsEditing(false);
       }
     } else {
-      setEmployee(getEmptyEmployee());
+      setAsset(getEmptyAsset());
       setIsEditing(true);
     }
-  }, [id_employee, employees]);
+  }, [id_asset, assets]);
 
   // ------------ FUNCTIONS ------------
   const inputOnChange = useCallback(
     (key, value) =>
-      setEmployee({
-        ...employee,
+      setAsset({
+        ...asset,
         [key]: value,
       }),
-    [employee]
+    [asset]
   );
 
-  const handleAddNewEmployee = useCallback(() => {
+  const handleAddNewAsset = useCallback(() => {
     if (formRef.current.reportValidity()) {
-      dispatch(addEmployee(employee));
+      dispatch(addAsset(asset));
       setIsDialogOpen(true);
     }
-  }, [dispatch, employee]);
+  }, [dispatch, asset]);
 
-  const handleEditEmployee = useCallback(() => {
+  const handleEditAsset = useCallback(() => {
     if (formRef.current.reportValidity()) {
-      dispatch(editEmployee(employee));
+      dispatch(editAsset(asset));
       setIsDialogOpen(true);
     }
-  }, [dispatch, employee]);
+  }, [dispatch, asset]);
 
   const handleCancel = useCallback(() => {
-    setEmployee(
-      employees.find((employee) => employee.id_employee === id_employee)
-    );
+    setAsset(assets.find((asset) => asset.id_asset === id_asset));
     setIsEditing(false);
-  }, [id_employee, employees]);
+  }, [id_asset, assets]);
 
   const handleCloseDialog = useCallback(() => {
     setIsDialogOpen(false);
 
-    if (id_employee) {
+    if (id_asset) {
       setIsEditing(false);
     } else {
       navigate("/");
     }
-  }, [id_employee, navigate]);
+  }, [id_asset, navigate]);
 
   // ------------ RENDERS ------------
   return (
     <>
       <PageTitle>
-        {id_employee
-          ? `ID del Empleado/a: ${employee.id_employee}`
-          : "Agregar Nuevo Empleado"}
+        {id_asset ? `ID del Activo: ${asset.id_asset}` : "Agregar Nuevo Activo"}
       </PageTitle>
       <Container
         sx={{
@@ -128,77 +120,86 @@ export const EmployeeForm = () => {
             <TextField
               required
               label="Nombre"
-              value={employee.first_name}
+              value={asset.name}
               disabled={!isEditing}
               onChange={(event) =>
                 // setEmployee({
                 //   ...employee,
                 //   ["first_name"]: event.target.value,
                 // })
-                inputOnChange("first_name", event.target.value)
+                inputOnChange("name", event.target.value)
               }
             />
             <TextField
               required
-              label="Apellido"
-              value={employee.last_name}
+              label="Tipo"
+              value={asset.type}
+              disabled={!isEditing}
+              onChange={(event) => inputOnChange("type", event.target.value)}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "24px" }}>
+            <TextField
+              label="Código"
+              //type="number"
+              value={asset.code}
+              disabled={!isEditing}
+              onChange={(event) => inputOnChange("code", event.target.value)}
+            />
+            <TextField
+              required
+              label="Marca"
+              //type="text"
+              value={asset.brand}
+              disabled={!isEditing}
+              onChange={(event) => inputOnChange("brand", event.target.value)}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "24px" }}>
+            <TextField
+              label="Descripción"
+              type="text"
+              value={asset.description}
               disabled={!isEditing}
               onChange={(event) =>
-                inputOnChange("last_name", event.target.value)
+                inputOnChange("description", event.target.value)
               }
             />
-          </div>
-          <div style={{ display: "flex", gap: "24px" }}>
             <TextField
               required
-              label="Cuit"
-              type="number"
-              value={employee.cuit}
-              disabled={!isEditing}
-              onChange={(event) => inputOnChange("cuit", event.target.value)}
-            />
-            <TextField
-              required
-              label="Team Id"
-              type="number"
-              value={employee.team_id}
-              disabled={!isEditing}
-              onChange={(event) => inputOnChange("team_id", event.target.value)}
-            />
-          </div>
-          <div style={{ display: "flex", gap: "24px" }}>
-            <TextField
-              required
-              label="Fecha Contratación"
+              label="Fecha de Compra"
               type="date"
-              value={employee.join_date}
+              value={asset.purchase_date}
               disabled={!isEditing}
               onChange={(event) =>
-                inputOnChange("join_date", event.target.value)
+                inputOnChange("purchase_date", event.target.value)
               }
               InputLabelProps={{ shrink: true }} //con esta prop label queda outline
             />
+          </div>
+          <div style={{ display: "flex", gap: "24px" }}>
             <TextField
               required
-              label="Rol"
-              type="text"
-              value={employee.rol}
+              label="ID de Empleado"
+              type="number"
+              value={asset.id_employee}
               disabled={!isEditing}
-              onChange={(event) => inputOnChange("rol", event.target.value)}
+              onChange={(event) =>
+                inputOnChange("id_employee", event.target.value)
+              }
             />
           </div>
-
           <div style={{ display: "flex", gap: "24px" }}>
             {/* Save, edit or cancel buttons */}
-            {id_employee ? (
+            {id_asset ? (
               isEditing ? (
                 <>
                   <Button
                     color="secondary"
                     variant="contained"
-                    onClick={handleEditEmployee}
+                    onClick={handleEditAsset}
                   >
-                    Guardar Empleado
+                    Guardar Activo
                   </Button>
                   <Button
                     color="info"
@@ -214,16 +215,16 @@ export const EmployeeForm = () => {
                   variant="contained"
                   onClick={() => setIsEditing(true)}
                 >
-                  Editar Empleado
+                  Editar Activo
                 </Button>
               )
             ) : (
               <Button
                 color="secondary"
                 variant="contained"
-                onClick={handleAddNewEmployee}
+                onClick={handleAddNewAsset}
               >
-                Agregar Empleado
+                Agregar Activo
               </Button>
             )}
           </div>
@@ -234,9 +235,9 @@ export const EmployeeForm = () => {
         //inicializada en false
         isOpen={isDialogOpen}
         title={
-          id_employee
-            ? `¡Se ha editado correctamente el empleado ${employee.last_name} ${employee.first_name}!`
-            : "¡Se ha guardado correctamente el empleado!"
+          id_asset
+            ? `¡Se ha editado correctamente el activo ${asset.name}!`
+            : "¡Se ha guardado correctamente el activo!"
         }
         closeLabel="Aceptar"
         onClose={handleCloseDialog} //lo que hago al aceptar, elim el empleado
