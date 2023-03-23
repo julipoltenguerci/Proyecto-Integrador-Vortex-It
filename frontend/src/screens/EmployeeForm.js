@@ -6,6 +6,7 @@ import { addEmployee, editEmployee } from "../actions/employeeActions";
 import { Dialog } from "../commons/Dialog";
 import { PageTitle } from "../commons/PageTitle";
 import { Box, Button, Container, TextField } from "@mui/material";
+import format from "date-fns/format";
 
 const getEmptyEmployee = () => ({
   id_employee: 0,
@@ -44,7 +45,14 @@ export const EmployeeForm = () => {
       );
       console.log("empleado a editar", employeeToEdit);
       if (employeeToEdit) {
-        setEmployee({ ...employeeToEdit });
+        console.log(
+          employeeToEdit.join_date,
+          format(new Date(employeeToEdit.join_date), "yyyy-MM-dd")
+        );
+        setEmployee({
+          ...employeeToEdit,
+          join_date: format(new Date(employeeToEdit.join_date), "yyyy-MM-dd"),
+        });
         setIsEditing(false);
       }
     } else {

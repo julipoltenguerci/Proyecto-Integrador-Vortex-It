@@ -74,9 +74,18 @@ export const removeEmployee = (id_employee) => async (dispatch) => {
   }
 };
 
-export const getEmployees = () => async (dispatch) => {
+export const getEmployees = (req) => async (dispatch) => {
   try {
-    const response = await fetch("http://localhost:8000/api/v1/employees");
+    const body = Object.entries(req);
+    let url = "http://localhost:8000/api/v1/employees?";
+    for (let i = 0; i < body.length; i++) {
+      if (i === body.length - 1) {
+        url = `${url}${body[i][0]}=${body[i][1]}`;
+      } else {
+        url = `${url}${body[i][0]}=${body[i][1]}&`;
+      }
+    }
+    const response = await fetch(url);
     const responseData = await response.json();
     //console.log(responseData);
     //console.log(responseData.data);

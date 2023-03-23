@@ -5,7 +5,7 @@ const connection = require("../config/db-config");
 
 const getAllEmployees = async (req) => {
   const {
-    page = 1,
+    page = 0,
     limit = "10",
     orderBy = "id_employee",
     direction = "ASC",
@@ -13,7 +13,7 @@ const getAllEmployees = async (req) => {
   } = req.query;
 
   // Offset: Cálculo de tamaño de pagina
-  const offset = (page - 1) * limit;
+  const offset = page * limit;
 
   const where =
     filters &&
@@ -33,7 +33,7 @@ const getAllEmployees = async (req) => {
   const [rows] = await connection.query(finalQuery);
   const [totalRows] = await connection.query(countQuery);
 
-  return { rows, totalRows };
+  return { rows, totalRows: totalRows[0].total };
 };
 
 const getEmployeeById = async (idE) => {

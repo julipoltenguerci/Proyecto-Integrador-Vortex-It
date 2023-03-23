@@ -43,7 +43,7 @@ export const employeeReducer = (state = initialState, action) => {
       return {
         ...state,
         employees: action.payload.rows,
-        totalRows: action.payload.totalRows[0].total,
+        totalRows: action.payload.totalRows,
       };
 
     default:

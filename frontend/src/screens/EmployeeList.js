@@ -1,5 +1,5 @@
 import React from "react";
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getEmployees } from "../actions/employeeActions";
@@ -50,10 +50,6 @@ export const EmployeeList = () => {
   // ------------ HOOKS ------------
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(getEmployees());
-  }, [dispatch]);
-
   const navigate = useNavigate();
 
   const employees = useSelector((state) => state.employeesSlice.employees);
@@ -65,6 +61,15 @@ export const EmployeeList = () => {
 
   const [employeeToDelete, setEmployeeToDelete] = useState();
 
+  useEffect(() => {
+    dispatch(
+      getEmployees({
+        page,
+        limit: rowsPerPage,
+      })
+    );
+  }, [dispatch, page, rowsPerPage]);
+
   // ------------ FUNCTIONS ------------
 
   const handleChangePage = useCallback((_, newPage) => setPage(newPage), []);
@@ -73,25 +78,6 @@ export const EmployeeList = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   }, []);
-
-  const employeesToDisplay = useMemo(
-    () => employees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [employees, page, rowsPerPage]
-  );
-
-  // Verificará si employees es un array antes de llamar a la función slice.
-  //Si employees no es un array, retornará un array vacío en lugar de llamar a slice.
-
-  // const employeesToDisplay = useMemo(() => {
-  //   if (!Array.isArray(employees)) {
-  //     return [];
-  //   }
-
-  //   return employees.slice(
-  //     page * rowsPerPage,
-  //     page * rowsPerPage + rowsPerPage
-  //   );
-  // }, [employees, page, rowsPerPage]);
 
   const handleViewAction = useCallback(
     (employee) => navigate(`/employee/${employee.id_employee}`),
@@ -110,6 +96,7 @@ export const EmployeeList = () => {
 
   // ------------ RENDERS ------------
 
+  console.log(employees);
   return (
     <>
       <PageTitle>Gestor de Empleados - Vortex IT</PageTitle>
@@ -146,7 +133,7 @@ export const EmployeeList = () => {
             </TableHead>
             <TableBody>
               {totalRows ? (
-                employeesToDisplay.map((row) => (
+                employees.map((row) => (
                   <TableRow hover tabIndex={-1} key={row.id_employee}>
                     {columns.map((column) => {
                       const value = row[column.id];

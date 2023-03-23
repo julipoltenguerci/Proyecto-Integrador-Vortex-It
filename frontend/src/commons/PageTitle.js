@@ -6,8 +6,10 @@ const Title = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   textAlign: "center",
   fontSize: 20,
-  color: theme.palette.text.secondary,
+  color: "white",
+  //theme.palette.text.secondary,
   fontWeight: "bold",
+  backgroundColor: "#9C27B0",
 }));
 
 export const PageTitle = ({ children }) => (
