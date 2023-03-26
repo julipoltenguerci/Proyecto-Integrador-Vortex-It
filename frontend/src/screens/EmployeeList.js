@@ -1,12 +1,12 @@
 import React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getEmployees } from "../actions/employeeActions";
 
 import {
   Paper,
-  //TextField,
+  TextField,
   Table,
   TableBody,
   TableCell,
@@ -15,9 +15,9 @@ import {
   TablePagination,
   TableRow,
   IconButton,
+  Container,
 } from "@mui/material";
 import { Delete, Visibility } from "@mui/icons-material";
-
 import { removeEmployee } from "../actions/employeeActions";
 import { Dialog } from "../commons/Dialog";
 import { PageTitle } from "../commons/PageTitle";
@@ -53,7 +53,10 @@ export const EmployeeList = () => {
   const navigate = useNavigate();
 
   const employees = useSelector((state) => state.employeesSlice.employees);
-  const totalRows = useSelector((state) => state.employeesSlice.totalRows);
+
+  const totalEmployees = useSelector(
+    (state) => state.employeesSlice.totalEmployees
+  );
 
   const [page, setPage] = useState(0);
 
@@ -61,14 +64,26 @@ export const EmployeeList = () => {
 
   const [employeeToDelete, setEmployeeToDelete] = useState();
 
+  const [searchFirstName, setSearchFirstName] = useState("");
+  const [searchLastName, setSearchLastName] = useState("");
+  const [searchRol, setSearchRol] = useState("");
+
+  const totalPaginas = useMemo(
+    () => Math.ceil(totalEmployees / rowsPerPage),
+    [totalEmployees, rowsPerPage]
+  );
+
   useEffect(() => {
     dispatch(
       getEmployees({
         page,
         limit: rowsPerPage,
+        first_name: searchFirstName,
+        last_name: searchLastName,
+        rol: searchRol,
       })
     );
-  }, [dispatch, page, rowsPerPage]);
+  }, [dispatch, page, rowsPerPage, searchFirstName, searchLastName, searchRol]);
 
   // ------------ FUNCTIONS ------------
 
@@ -89,28 +104,56 @@ export const EmployeeList = () => {
     []
   );
 
+  const inputFirstNameOnChange = (value) => setSearchFirstName(value);
+  const inputLastNameOnChange = (value) => setSearchLastName(value);
+  const inputRolOnChange = (value) => setSearchRol(value);
+
   const handleAcceptDialog = useCallback(() => {
     dispatch(removeEmployee(employeeToDelete));
     setEmployeeToDelete();
   }, [dispatch, employeeToDelete]);
 
   // ------------ RENDERS ------------
-
-  console.log(employees);
   return (
     <>
       <PageTitle>Gestor de Empleados - Vortex IT</PageTitle>
       <Paper sx={{ width: "100%" }}>
-        {/* <TextField
-          id="standard-search"
-          label="Búsqueda de empleados"
-          type="search"
+        <Container
+          sx={{
+            marginLeft: "0px",
+            display: "flex",
+            gap: "30px",
+            marginTop: "40px",
+            marginBottom: "40px",
+          }}
         >
-          {" "}
-        </TextField>
-        <IconButton aria-label="search">
-          <Search />
-        </IconButton> */}
+          <TextField
+            id="name-search"
+            label="Búsqueda por Nombre"
+            type="search"
+            onChange={(event) => inputFirstNameOnChange(event.target.value)}
+          >
+            {" "}
+          </TextField>
+
+          <TextField
+            id="last-name-search"
+            label="Búsqueda por Apellido"
+            type="search"
+            onChange={(event) => inputLastNameOnChange(event.target.value)}
+          >
+            {" "}
+          </TextField>
+
+          <TextField
+            id="rol-search"
+            label="Búsqueda por Rol"
+            type="search"
+            onChange={(event) => inputRolOnChange(event.target.value)}
+          >
+            {" "}
+          </TextField>
+        </Container>
 
         <TableContainer sx={{ maxHeight: 500 }}>
           <Table>
@@ -132,7 +175,7 @@ export const EmployeeList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {totalRows ? (
+              {totalEmployees ? (
                 employees.map((row) => (
                   <TableRow hover tabIndex={-1} key={row.id_employee}>
                     {columns.map((column) => {
@@ -170,11 +213,14 @@ export const EmployeeList = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
-          count={totalRows}
+          count={totalEmployees}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          labelDisplayedRows={(paginationInfo) =>
+            `${paginationInfo.from}–${paginationInfo.to} de ${paginationInfo.count} empleados (${totalPaginas} páginas)`
+          }
         />
       </Paper>
 

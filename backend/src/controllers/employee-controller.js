@@ -106,13 +106,11 @@ const deleteEmployee = async (req, res, next) => {
     }
     // Obtener los activos relacionados con el empleado que se va a eliminar
     const assets = await assetModel.getAssetsByEmployeeId(idE);
-    console.log(assets);
 
     // // Desvincular los activos del empleado antes de eliminarlo
 
     await Promise.all(
       assets.map(async (asset) => {
-        console.log("antes de act", asset.id_asset);
         await assetModel.updateAsset({ id_employee: null }, asset.id_asset);
       })
     );

@@ -2,21 +2,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
-import { addAsset, editAsset } from "../actions/assetActions";
+import {
+  addAsset,
+  editAsset,
+  getAsset,
+  updateAsset,
+} from "../actions/assetActions";
 import { Dialog } from "../commons/Dialog";
 import { PageTitle } from "../commons/PageTitle";
 import { Box, Button, Container, TextField } from "@mui/material";
-
-const getEmptyAsset = () => ({
-  id_asset: "",
-  name: "",
-  type: "",
-  code: "",
-  brand: "",
-  description: "",
-  purchase_date: "",
-  id_employee: "",
-});
+import Alert from "@mui/material/Alert";
 
 export const AssetForm = () => {
   // ------------ HOOKS ------------
@@ -28,55 +23,53 @@ export const AssetForm = () => {
 
   const formRef = useRef();
 
-  const assets = useSelector((state) => state.assetsSlice.assets);
-
-  const [asset, setAsset] = useState(getEmptyAsset());
-
+  const asset = useSelector((state) => state.assetsSlice.asset);
+  const error = useSelector((state) => state.assetsSlice.error);
   const [isEditing, setIsEditing] = useState(true);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (id_asset) {
-      const assetToEdit = assets.find((asset) => asset.id_asset === id_asset);
-      if (assetToEdit) {
-        setAsset({ ...assetToEdit });
-        setIsEditing(false);
-      }
-    } else {
-      setAsset(getEmptyAsset());
-      setIsEditing(true);
+    dispatch(getAsset(id_asset));
+  }, [dispatch, id_asset]);
+
+  useEffect(() => {
+    if (!error) {
+      setIsEditing(!asset.id_asset);
     }
-  }, [id_asset, assets]);
+  }, [asset.id_asset]);
 
   // ------------ FUNCTIONS ------------
+
   const inputOnChange = useCallback(
     (key, value) =>
-      setAsset({
-        ...asset,
-        [key]: value,
-      }),
-    [asset]
+      dispatch(
+        updateAsset({
+          ...asset,
+          [key]: value,
+        })
+      ),
+    [dispatch, asset]
   );
 
   const handleAddNewAsset = useCallback(() => {
     if (formRef.current.reportValidity()) {
       dispatch(addAsset(asset));
-      setIsDialogOpen(true);
+      //setIsDialogOpen(true);
     }
   }, [dispatch, asset]);
 
   const handleEditAsset = useCallback(() => {
     if (formRef.current.reportValidity()) {
       dispatch(editAsset(asset));
-      setIsDialogOpen(true);
+      //setIsDialogOpen(true);
     }
   }, [dispatch, asset]);
 
   const handleCancel = useCallback(() => {
-    setAsset(assets.find((asset) => asset.id_asset === id_asset));
+    dispatch(getAsset(id_asset));
     setIsEditing(false);
-  }, [id_asset, assets]);
+  }, [dispatch, id_asset]);
 
   const handleCloseDialog = useCallback(() => {
     setIsDialogOpen(false);
@@ -122,18 +115,13 @@ export const AssetForm = () => {
               label="Nombre"
               value={asset.name}
               disabled={!isEditing}
-              onChange={(event) =>
-                // setEmployee({
-                //   ...employee,
-                //   ["first_name"]: event.target.value,
-                // })
-                inputOnChange("name", event.target.value)
-              }
+              onChange={(event) => inputOnChange("name", event.target.value)}
             />
             <TextField
               required
               label="Tipo"
               value={asset.type}
+              type="text"
               disabled={!isEditing}
               onChange={(event) => inputOnChange("type", event.target.value)}
             />
@@ -149,7 +137,7 @@ export const AssetForm = () => {
             <TextField
               required
               label="Marca"
-              //type="text"
+              type="text"
               value={asset.brand}
               disabled={!isEditing}
               onChange={(event) => inputOnChange("brand", event.target.value)}
@@ -230,18 +218,24 @@ export const AssetForm = () => {
           </div>
         </Box>
       </Container>
-
-      <Dialog
-        //inicializada en false
-        isOpen={isDialogOpen}
-        title={
-          id_asset
-            ? `¡Se ha editado correctamente el activo ${asset.name}!`
-            : "¡Se ha guardado correctamente el activo!"
-        }
-        closeLabel="Aceptar"
-        onClose={handleCloseDialog} //lo que hago al aceptar, elim el empleado
-      ></Dialog>
+      {error ? (
+        <div>
+          <Alert severity="error">{error}</Alert>
+        </div>
+      ) : null}
+      {
+        <Dialog
+          //inicializada en false
+          isOpen={isDialogOpen}
+          title={
+            id_asset
+              ? `¡Se ha editado correctamente el activo ${asset.name}!`
+              : "¡Se ha guardado correctamente el activo!"
+          }
+          closeLabel="Aceptar"
+          onClose={handleCloseDialog} //lo que hago al aceptar, elim el activo
+        ></Dialog>
+      }
     </>
   );
 };

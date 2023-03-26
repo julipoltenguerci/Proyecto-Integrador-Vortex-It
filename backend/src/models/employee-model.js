@@ -18,7 +18,7 @@ const getAllEmployees = async (req) => {
   const where =
     filters &&
     Object.entries(filters)
-      .map(([key, value]) => `${key} = "${value}"`)
+      .map(([key, value]) => `${key} like '%${value}%'`)
       .join(" AND ");
 
   const countQuery = `SELECT count(*) as total FROM employees ${

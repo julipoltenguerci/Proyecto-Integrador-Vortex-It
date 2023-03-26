@@ -1,11 +1,12 @@
 import React from "react";
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAssets } from "../actions/assetActions";
 
 import {
   Paper,
+  TextField,
   Table,
   TableBody,
   TableCell,
@@ -14,6 +15,7 @@ import {
   TablePagination,
   TableRow,
   IconButton,
+  Container,
 } from "@mui/material";
 import { Delete, Visibility } from "@mui/icons-material";
 import { removeAsset } from "../actions/assetActions";
@@ -48,19 +50,37 @@ export const AssetList = () => {
   // ------------ HOOKS ------------
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(getAssets());
-  }, [dispatch]);
-
   const navigate = useNavigate();
 
   const assets = useSelector((state) => state.assetsSlice.assets);
 
+  const totalAssets = useSelector((state) => state.assetsSlice.totalAssets);
+
   const [page, setPage] = useState(0);
 
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [assetToDelete, setAssetToDelete] = useState();
+  const [searchName, setSearchName] = useState("");
+  const [searchType, setSearchType] = useState("");
+  const [searchEmployeeId, setSearchEmployeeId] = useState("");
+
+  const totalPaginas = useMemo(
+    () => Math.ceil(totalAssets / rowsPerPage),
+    [totalAssets, rowsPerPage]
+  );
+
+  useEffect(() => {
+    dispatch(
+      getAssets({
+        page,
+        limit: rowsPerPage,
+        name: searchName,
+        type: searchType,
+        id_employee: searchEmployeeId,
+      })
+    );
+  }, [dispatch, page, rowsPerPage, searchName, searchType, searchEmployeeId]);
 
   // ------------ FUNCTIONS ------------
 
@@ -70,25 +90,6 @@ export const AssetList = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   }, []);
-
-  const assetsToDisplay = useMemo(
-    () => assets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [assets, page, rowsPerPage]
-  );
-
-  // Verificará si employees es un array antes de llamar a la función slice.
-  //Si employees no es un array, retornará un array vacío en lugar de llamar a slice.
-
-  // const employeesToDisplay = useMemo(() => {
-  //   if (!Array.isArray(employees)) {
-  //     return [];
-  //   }
-
-  //   return employees.slice(
-  //     page * rowsPerPage,
-  //     page * rowsPerPage + rowsPerPage
-  //   );
-  // }, [employees, page, rowsPerPage]);
 
   const handleViewAction = useCallback(
     (asset) => navigate(`/asset/${asset.id_asset}`),
@@ -100,6 +101,9 @@ export const AssetList = () => {
     []
   );
 
+  const inputNameOnChange = (value) => setSearchName(value);
+  const inputTypeOnChange = (value) => setSearchType(value);
+  const inputEmployeeIdOnChange = (value) => setSearchEmployeeId(value);
   const handleAcceptDialog = useCallback(() => {
     dispatch(removeAsset(assetToDelete));
     setAssetToDelete();
@@ -111,6 +115,43 @@ export const AssetList = () => {
     <>
       <PageTitle>Gestor de Activos - Vortex IT</PageTitle>
       <Paper sx={{ width: "100%" }}>
+        <Container
+          sx={{
+            marginLeft: "0px",
+            display: "flex",
+            gap: "30px",
+            marginTop: "40px",
+            marginBottom: "40px",
+          }}
+        >
+          <TextField
+            id="name-search"
+            label="Búsqueda por Nombre"
+            type="search"
+            onChange={(event) => inputNameOnChange(event.target.value)}
+          >
+            {" "}
+          </TextField>
+
+          <TextField
+            id="type-search"
+            label="Búsqueda por Tipo"
+            type="search"
+            onChange={(event) => inputTypeOnChange(event.target.value)}
+          >
+            {" "}
+          </TextField>
+
+          <TextField
+            id="employee-id-search"
+            label="Búsqueda por ID de Empleado"
+            type="search"
+            onChange={(event) => inputEmployeeIdOnChange(event.target.value)}
+          >
+            {" "}
+          </TextField>
+        </Container>
+
         <TableContainer sx={{ maxHeight: 500 }}>
           <Table>
             <TableHead>
@@ -131,8 +172,8 @@ export const AssetList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {assets.length ? (
-                assetsToDisplay.map((row) => (
+              {totalAssets ? (
+                assets.map((row) => (
                   <TableRow hover tabIndex={-1} key={row.id_asset}>
                     {columns.map((column) => {
                       const value = row[column.id];
@@ -169,11 +210,14 @@ export const AssetList = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
-          count={assets.length}
+          count={totalAssets}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          labelDisplayedRows={(paginationInfo) =>
+            `${paginationInfo.from}–${paginationInfo.to} de ${paginationInfo.count} assets (${totalPaginas} páginas)`
+          }
         />
       </Paper>
 

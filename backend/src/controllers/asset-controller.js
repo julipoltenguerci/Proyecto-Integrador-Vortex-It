@@ -1,5 +1,6 @@
 const assetModel = require("../models/asset-model");
-const { HttpError, NotFoundError } = require("../customError/Http-Error");
+const employeeModel = require("../models/employee-model");
+const { NotFoundError } = require("../customError/Http-Error");
 const ResponseApi = require("../utils/responseApi");
 
 // ---------- Funciones de Controlador de Employee ----------
@@ -7,7 +8,7 @@ const ResponseApi = require("../utils/responseApi");
 const getAllAssets = async (req, res, next) => {
   try {
     const assets = await assetModel.getAllAssets(req);
-    assets.length === 0
+    assets.rows.length === 0
       ? next(new NotFoundError("No se encontraron activos disponibles."))
       : res.json(
           new ResponseApi(
@@ -64,6 +65,27 @@ const getAssetsByEmployeeId = async (req, res, next) => {
 const createAsset = async (req, res, next) => {
   try {
     const values = { ...req.body };
+    const body = Object.entries(req.body);
+    for (let i = 0; i < body.length; i++) {
+      if (body[i][0] == "id_employee") {
+        const idEmployeeToUpdate = body[i][1];
+        let employeeExists = await employeeModel.getEmployeeById(
+          idEmployeeToUpdate
+        );
+        if (employeeExists.length == 0) {
+          res
+            .status(400)
+            .json(
+              new ResponseApi(
+                false,
+                `No se ha encontrado el empleado con el ID ${idEmployeeToUpdate}`,
+                idEmployeeToUpdate,
+                400
+              )
+            );
+        }
+      }
+    }
     const idCreated = await assetModel.createAsset(values);
     res
       .status(201)
@@ -96,6 +118,29 @@ const updateAsset = async (req, res, next) => {
           )
         );
     }
+
+    const body = Object.entries(req.body);
+    for (let i = 0; i < body.length; i++) {
+      if (body[i][0] == "id_employee") {
+        const idEmployeeToUpdate = body[i][1];
+        let employeeExists = await employeeModel.getEmployeeById(
+          idEmployeeToUpdate
+        );
+        if (employeeExists.length == 0) {
+          res
+            .status(400)
+            .json(
+              new ResponseApi(
+                false,
+                `No se ha encontrado el empleado con el ID ${idEmployeeToUpdate}`,
+                idA,
+                400
+              )
+            );
+        }
+      }
+    }
+
     await assetModel.updateAsset(req.body, idA);
     res.json(
       new ResponseApi(

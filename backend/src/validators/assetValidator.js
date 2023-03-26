@@ -5,48 +5,58 @@ const validateResults = require("../utils/handleValidator");
 
 const createAssetValidator = [
   body("name")
+    .matches(/^[A-Za-z\s]+$/)
+    .withMessage("NOMBRE debe contener solo letras.")
     .exists()
-    .withMessage("El campo es obligatorio")
+    .withMessage("NOMBRE es obligatorio")
     .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
+    .withMessage("NOMBRE no debe quedar vacio")
     .isString()
     .withMessage("El valor no es válido")
     .isLength({ min: 3, max: 50 })
-    .withMessage("Escriba mínimo 3 caracteres y máximo 50"),
+    .withMessage("Escriba en NOMBRE un mínimo 3 caracteres y un máximo 50"),
   body("type")
+    .matches(/^[A-Za-z\s]+$/)
+    .withMessage("TIPO debe contener solo letras.")
     .exists()
-    .withMessage("El campo es obligatorio")
+    .withMessage("TIPO es obligatorio")
     .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
+    .withMessage("TIPO no debe quedar vacio")
     .isString()
-    .withMessage("El valor no es válido")
+    .withMessage("El valor de TIPO no es válido")
     .isLength({ min: 3, max: 50 })
-    .withMessage("Escriba mínimo 3 caracteres y máximo 50"),
-  body("code").optional().notEmpty().withMessage("Campo no debe quedar vacio"),
+    .withMessage("Escriba en TIPO un mínimo 3 caracteres y un máximo 50"),
+  body("code").optional({
+    options: {
+      checkFalsy: true,
+    },
+  }),
   body("brand")
+    .matches(/^[A-Za-z\s]+$/)
+    .withMessage("MARCA debe contener solo letras.")
     .exists()
-    .withMessage("El campo es obligatorio")
+    .withMessage("MARCA es obligatorio")
     .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
+    .withMessage("MARCA no debe quedar vacio")
     .isString()
-    .withMessage("El valor no es válido")
+    .withMessage("El valor de MARCA no es válido")
     .isLength({ min: 2, max: 50 })
-    .withMessage("Escriba mínimo 3 caracteres y máximo 50"),
+    .withMessage("Escriba en MARCA un mínimo 2 caracteres y un máximo 50"),
   body("description")
     .optional()
-    .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
     .isString()
-    .withMessage("El valor no es válido")
-    .isLength({ min: 3, max: 150 })
-    .withMessage("Escriba mínimo 3 caracteres y máximo 150"),
+    .optional({
+      options: {
+        checkFalsy: true,
+      },
+    }),
   body("purchase_date")
     .exists()
-    .withMessage("El campo es obligatorio")
+    .withMessage("FECHA DE COMPRA es obligatorio")
     .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
+    .withMessage("FECHA DE COMPRA no debe quedar vacio")
     .isDate()
-    .withMessage("El campo debe ser una fecha(aaaa-mm-dd)"),
+    .withMessage("FECHA DE COMPRA debe ser una fecha(aaaa-mm-dd)"),
   (req, res, next) => {
     return validateResults(req, res, next);
   },
@@ -55,51 +65,49 @@ const createAssetValidator = [
 const updateAssetValidator = [
   body("name")
     .optional()
-    .exists()
-    .withMessage("El campo es obligatorio")
+
     .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
+    .withMessage("NOMBRE no debe quedar vacio")
+    .matches(/^[A-Za-z\s]+$/)
+    .withMessage("NOMBRE debe contener solo letras.")
     .isString()
-    .withMessage("El valor no es válido")
+    .withMessage("El valor de NOMBRE no es válido. Debe ser texto.")
     .isLength({ min: 3, max: 50 })
-    .withMessage("Escriba mínimo 3 caracteres y máximo 50"),
+    .withMessage("Escriba en NOMBRE un mínimo 3 caracteres y máximo 50"),
   body("type")
     .optional()
-    .exists()
-    .withMessage("El campo es obligatorio")
+
     .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
+    .withMessage("TIPO no debe quedar vacio")
     .isString()
-    .withMessage("El valor no es válido")
+    .withMessage("El valor de TIPO no es válido")
     .isLength({ min: 3, max: 50 })
-    .withMessage("Escriba mínimo 3 caracteres y máximo 50"),
-  body("code").optional().notEmpty().withMessage("Campo no debe quedar vacio"),
+    .withMessage("Escriba en TIPO un mínimo 3 caracteres y un máximo 50"),
+  body("code").optional({
+    options: {
+      checkFalsy: true,
+    },
+  }),
   body("brand")
     .optional()
-    .exists()
-    .withMessage("El campo es obligatorio")
+
     .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
+    .withMessage("MARCA no debe quedar vacio")
     .isString()
-    .withMessage("El valor no es válido")
+    .withMessage("El valor de MARCA no es válido")
     .isLength({ min: 2, max: 50 })
-    .withMessage("Escriba mínimo 3 caracteres y máximo 50"),
-  body("description")
-    .optional()
-    .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
-    .isString()
-    .withMessage("El valor no es válido")
-    .isLength({ min: 3, max: 150 })
-    .withMessage("Escriba mínimo 3 caracteres y máximo 150"),
+    .withMessage("Escriba en MARCA un mínimo 2 caracteres y un máximo 50"),
+  body("description").optional({
+    options: {
+      checkFalsy: true,
+    },
+  }),
   body("purchase_date")
     .optional()
-    .exists()
-    .withMessage("El campo es obligatorio")
     .notEmpty()
-    .withMessage("Campo no debe quedar vacio")
+    .withMessage("FECHA DE COMPRA no debe quedar vacio")
     .isDate()
-    .withMessage("El campo debe ser una fecha(aaaa-mm-dd)"),
+    .withMessage("FECHA DE COMPRA debe ser una fecha(aaaa-mm-dd)"),
   (req, res, next) => {
     return validateResults(req, res, next);
   },

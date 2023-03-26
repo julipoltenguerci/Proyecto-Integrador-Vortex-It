@@ -5,7 +5,7 @@ const connection = require("../config/db-config");
 
 const getAllAssets = async (req) => {
   const {
-    page = 1,
+    page = 0,
     limit = "10",
     orderBy = "id_asset",
     direction = "ASC",
@@ -13,29 +13,32 @@ const getAllAssets = async (req) => {
   } = req.query;
 
   // Offset: Cálculo de tamaño de pagina
-  const offset = (page - 1) * limit;
+  const offset = page * limit;
 
   // Clausula where
   const where =
     filters &&
     Object.entries(filters)
-      .map(([key, value]) => `${key} = "${value}"`)
+      .map(([key, value]) => `IFNULL(${key},'') like '%${value}%'`)
       .join(" AND ");
+
+  const countQuery = `SELECT count(*) as total FROM assets ${
+    where ? `WHERE ${where}` : ""
+  }`;
 
   const finalQuery = `SELECT * FROM assets ${
     where ? `WHERE ${where}` : ""
   } ORDER BY ${orderBy} ${direction} 
   LIMIT ${limit} OFFSET ${offset}`;
-
   const [rows] = await connection.query(finalQuery);
-
-  return rows;
+  const [totalRows] = await connection.query(countQuery);
+  return { rows, totalRows: totalRows[0].total };
 };
 
 const getAssetById = async (idA) => {
   const sentence = `SELECT * FROM assets a WHERE a.id_asset = ${idA}`;
   const row = await connection.query(sentence).spread((row) => row);
-  return row;
+  return row.length > 0 ? row[0] : [];
 };
 
 const getAssetsByEmployeeId = async (idE) => {
@@ -59,13 +62,10 @@ const createAsset = async (values) => {
 
 const updateAsset = async (req, idA) => {
   const body = Object.entries(req);
-  console.log("req:", req);
-  console.log("iD a actualizar:", idA);
   let sentence = "UPDATE assets SET ";
   for (let i = 0; i < body.length; i++) {
     if (body[i][0] == "id_employee") {
       sentence = sentence.concat(`${body[i][0]} = ${body[i][1]} `);
-      console.log("entro");
     } else if (i === body.length - 1) {
       sentence = sentence.concat(`${body[i][0]} = "${body[i][1]}" `);
     } else {
@@ -73,10 +73,8 @@ const updateAsset = async (req, idA) => {
     }
   }
   sentence = sentence.concat(`WHERE id_asset = ${idA}`);
-  console.log(sentence);
 
   const result = await connection.query(sentence).spread((result) => result);
-  console.log("resultado ", result);
 
   return result;
 };

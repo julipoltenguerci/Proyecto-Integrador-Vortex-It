@@ -2,21 +2,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
-import { addEmployee, editEmployee } from "../actions/employeeActions";
+import {
+  addEmployee,
+  editEmployee,
+  getEmployee,
+  updateEmployee,
+} from "../actions/employeeActions";
 import { Dialog } from "../commons/Dialog";
 import { PageTitle } from "../commons/PageTitle";
 import { Box, Button, Container, TextField } from "@mui/material";
-import format from "date-fns/format";
-
-const getEmptyEmployee = () => ({
-  id_employee: 0,
-  first_name: "",
-  last_name: "",
-  cuit: "",
-  team_id: "",
-  join_date: "",
-  rol: "",
-});
+import Alert from "@mui/material/Alert";
 
 export const EmployeeForm = () => {
   // ------------ HOOKS ------------
@@ -28,53 +23,58 @@ export const EmployeeForm = () => {
 
   const formRef = useRef();
 
-  const employees = useSelector((state) => state.employeesSlice.employees);
-
-  const [employee, setEmployee] = useState(getEmptyEmployee());
+  const employee = useSelector((state) => state.employeesSlice.employee);
+  const error = useSelector((state) => state.employeesSlice.error);
 
   const [isEditing, setIsEditing] = useState(true);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    if (id_employee) {
-      console.log("id employee: ", typeof id_employee);
-      console.log("todos los empleados son: ", employees);
-      const employeeToEdit = employees.find(
-        (employee) => employee.id_employee === parseInt(id_employee)
-      );
-      console.log("empleado a editar", employeeToEdit);
-      if (employeeToEdit) {
-        console.log(
-          employeeToEdit.join_date,
-          format(new Date(employeeToEdit.join_date), "yyyy-MM-dd")
-        );
-        setEmployee({
-          ...employeeToEdit,
-          join_date: format(new Date(employeeToEdit.join_date), "yyyy-MM-dd"),
-        });
-        setIsEditing(false);
-      }
-    } else {
-      setEmployee(getEmptyEmployee());
-      setIsEditing(true);
-    }
-  }, [id_employee, employees]);
+  //const [hasError, setHasError] = useState(false);
 
+  useEffect(() => {
+    dispatch(getEmployee(id_employee));
+  }, [dispatch, id_employee]);
+
+  useEffect(() => {
+    console.error("useEffect employee.id_employee", error);
+    if (!error) {
+      setIsEditing(!employee.id_employee);
+    } else {
+      setIsDialogOpen(false);
+    }
+  }, [employee.id_employee]);
+
+  /*  useEffect(() => {
+    if (error !== null) {
+      setIsDialogOpen(false);
+      console.error("Error while adding employee:", error);
+    } else {
+      console.error("useEffect error", error);
+      //setIsDialogOpen(true);
+    }
+  }, [error]); */
+
+  console.log("isDialogOpen", isDialogOpen);
+  console.log("****************error: ", error);
   // ------------ FUNCTIONS ------------
   const inputOnChange = useCallback(
     (key, value) =>
-      setEmployee({
-        ...employee,
-        [key]: value,
-      }),
-    [employee]
+      dispatch(
+        updateEmployee({
+          ...employee,
+          [key]: value,
+        })
+      ),
+    [dispatch, employee]
   );
 
-  const handleAddNewEmployee = useCallback(() => {
+  const handleAddNewEmployee = useCallback(async () => {
     if (formRef.current.reportValidity()) {
-      dispatch(addEmployee(employee));
-      setIsDialogOpen(true);
+      try {
+        dispatch(addEmployee(employee));
+        setIsDialogOpen(true);
+      } catch (err) {}
     }
   }, [dispatch, employee]);
 
@@ -86,11 +86,9 @@ export const EmployeeForm = () => {
   }, [dispatch, employee]);
 
   const handleCancel = useCallback(() => {
-    setEmployee(
-      employees.find((employee) => employee.id_employee === id_employee)
-    );
+    dispatch(getEmployee(id_employee));
     setIsEditing(false);
-  }, [id_employee, employees]);
+  }, [dispatch, id_employee]);
 
   const handleCloseDialog = useCallback(() => {
     setIsDialogOpen(false);
@@ -149,6 +147,7 @@ export const EmployeeForm = () => {
             <TextField
               required
               label="Apellido"
+              type="text"
               value={employee.last_name}
               disabled={!isEditing}
               onChange={(event) =>
@@ -237,18 +236,24 @@ export const EmployeeForm = () => {
           </div>
         </Box>
       </Container>
-
-      <Dialog
-        //inicializada en false
-        isOpen={isDialogOpen}
-        title={
-          id_employee
-            ? `¡Se ha editado correctamente el empleado ${employee.last_name} ${employee.first_name}!`
-            : "¡Se ha guardado correctamente el empleado!"
-        }
-        closeLabel="Aceptar"
-        onClose={handleCloseDialog} //lo que hago al aceptar, elim el empleado
-      ></Dialog>
+      {error ? (
+        <div>
+          <Alert severity="error">{error}</Alert>
+        </div>
+      ) : null}
+      {
+        <Dialog
+          //inicializada en false
+          isOpen={isDialogOpen}
+          title={
+            id_employee
+              ? `¡Se ha editado correctamente el empleado ${employee.last_name} ${employee.first_name}!`
+              : "¡Se ha guardado correctamente el empleado!"
+          }
+          closeLabel="Aceptar"
+          onClose={handleCloseDialog} //lo que hago al aceptar, elim el empleado
+        ></Dialog>
+      }
     </>
   );
 };
