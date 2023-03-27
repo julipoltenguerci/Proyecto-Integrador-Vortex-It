@@ -224,11 +224,18 @@ export const AssetForm = () => {
           </div>
         </Box>
       </Container>
-      {error ? (
-        <div>
+      {error && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: "50px",
+          }}
+        >
           <Alert severity="error">{error}</Alert>
         </div>
-      ) : null}
+      )}
       {
         <Dialog
           //inicializada en false
@@ -239,7 +246,7 @@ export const AssetForm = () => {
               : "¡Se ha guardado correctamente el activo!"
           }
           closeLabel="Aceptar"
-          onClose={handleCloseDialog} //al aceptar, elimino el activo
+          onClose={handleCloseDialog} //Al aceptar, elimino el activo
         ></Dialog>
       }
     </>

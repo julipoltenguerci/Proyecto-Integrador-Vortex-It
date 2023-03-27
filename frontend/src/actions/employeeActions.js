@@ -162,7 +162,6 @@ export const removeEmployee = (employee) => async (dispatch) => {
     );
 
     if (response.ok) {
-      // Si la respuesta es satisfactoria, se dispara la acción de eliminar el empleado con el id correspondiente
       dispatch({ type: REMOVE_EMPLOYEE, payload: employee });
     } else {
       dispatch({
