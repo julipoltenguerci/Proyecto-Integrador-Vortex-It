@@ -21,6 +21,7 @@ import { Delete, Visibility } from "@mui/icons-material";
 import { removeAsset } from "../actions/assetActions";
 import { Dialog } from "../commons/Dialog";
 import { PageTitle } from "../commons/PageTitle";
+import debounce from "lodash.debounce";
 
 const columns = [
   { id: "id_asset", label: "ID", minWidth: 50, align: "center" },
@@ -101,9 +102,21 @@ export const AssetList = () => {
     []
   );
 
-  const inputNameOnChange = (value) => setSearchName(value);
-  const inputTypeOnChange = (value) => setSearchType(value);
-  const inputEmployeeIdOnChange = (value) => setSearchEmployeeId(value);
+  const inputNameOnChange = useMemo(
+    () => debounce((value) => setSearchName(value), 500),
+    []
+  );
+
+  const inputTypeOnChange = useMemo(
+    () => debounce((value) => setSearchType(value), 500),
+    []
+  );
+
+  const inputEmployeeIdOnChange = useMemo(
+    () => debounce((value) => setSearchEmployeeId(value), 500),
+    []
+  );
+
   const handleAcceptDialog = useCallback(() => {
     dispatch(removeAsset(assetToDelete));
     setAssetToDelete();

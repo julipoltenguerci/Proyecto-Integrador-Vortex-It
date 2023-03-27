@@ -18,7 +18,7 @@ export const getEmployees = (req) => async (dispatch) => {
   try {
     dispatch({ type: LOADING_EMPLOYEES });
 
-    const body = Object.entries(req);
+    const body = Object.entries(req).filter((data) => data[1]);
     let url = "http://localhost:8000/api/v1/employees?";
     for (let i = 0; i < body.length; i++) {
       if (i === body.length - 1) {
@@ -47,7 +47,7 @@ export const getEmployees = (req) => async (dispatch) => {
 export const getEmployee = (id_employee) => async (dispatch) => {
   try {
     dispatch({ type: LOADING_EMPLOYEES });
-    if (id_employee !== undefined) {
+    if (id_employee) {
       const response = await fetch(
         `http://localhost:8000/api/v1/employees/${id_employee}`
       );
@@ -68,6 +68,8 @@ export const getEmployee = (id_employee) => async (dispatch) => {
           payload: "Error obteniendo el empleado por id.",
         });
       }
+    } else {
+      dispatch({ type: GET_EMPLOYEE });
     }
   } catch (error) {
     dispatch({ type: ERROR_EMPLOYEES, payload: error.message });
@@ -91,18 +93,20 @@ export const addEmployee = (employeeData) => async (dispatch) => {
     if (response.ok) {
       const responseData = await response.json();
       dispatch({ type: ADD_EMPLOYEE, payload: responseData.data });
+      return Promise.resolve(true);
     } else {
       const responseData = await response.json();
-      //const errores = responseData.errors.map((a) => `${a.param} ${a.msg}`);
       const errorsArray = responseData.errors.map((a) => a.msg);
       const err = errorsArray[0];
       dispatch({
         type: ERROR_EMPLOYEES,
         payload: "Error agregando el empleado. " + err,
       });
+      return Promise.resolve(false);
     }
   } catch (error) {
     dispatch({ type: ERROR_EMPLOYEES, payload: error.message });
+    return Promise.resolve(false);
   }
 };
 
@@ -127,6 +131,7 @@ export const editEmployee = (payload) => async (dispatch) => {
       const responseData = await response.json();
 
       dispatch({ type: EDIT_EMPLOYEE, payload: responseData });
+      return Promise.resolve(true);
     } else {
       const responseData = await response.json();
       const errorsArray = responseData.errors.map((a) => a.msg);
@@ -135,9 +140,11 @@ export const editEmployee = (payload) => async (dispatch) => {
         type: ERROR_EMPLOYEES,
         payload: "Error editando el empleado. " + err,
       });
+      return Promise.resolve(false);
     }
   } catch (error) {
     dispatch({ type: ERROR_EMPLOYEES, payload: error.message });
+    return Promise.resolve(false);
   }
 };
 

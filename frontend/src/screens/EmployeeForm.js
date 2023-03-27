@@ -24,39 +24,21 @@ export const EmployeeForm = () => {
   const formRef = useRef();
 
   const employee = useSelector((state) => state.employeesSlice.employee);
+
   const error = useSelector((state) => state.employeesSlice.error);
 
   const [isEditing, setIsEditing] = useState(true);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  //const [hasError, setHasError] = useState(false);
-
   useEffect(() => {
     dispatch(getEmployee(id_employee));
   }, [dispatch, id_employee]);
 
   useEffect(() => {
-    console.error("useEffect employee.id_employee", error);
-    if (!error) {
-      setIsEditing(!employee.id_employee);
-    } else {
-      setIsDialogOpen(false);
-    }
+    setIsEditing(!employee.id_employee);
   }, [employee.id_employee]);
 
-  /*  useEffect(() => {
-    if (error !== null) {
-      setIsDialogOpen(false);
-      console.error("Error while adding employee:", error);
-    } else {
-      console.error("useEffect error", error);
-      //setIsDialogOpen(true);
-    }
-  }, [error]); */
-
-  console.log("isDialogOpen", isDialogOpen);
-  console.log("****************error: ", error);
   // ------------ FUNCTIONS ------------
   const inputOnChange = useCallback(
     (key, value) =>
@@ -71,17 +53,21 @@ export const EmployeeForm = () => {
 
   const handleAddNewEmployee = useCallback(async () => {
     if (formRef.current.reportValidity()) {
-      try {
-        dispatch(addEmployee(employee));
-        setIsDialogOpen(true);
-      } catch (err) {}
+      dispatch(addEmployee(employee)).then((result) => {
+        if (result) {
+          setIsDialogOpen(true);
+        }
+      });
     }
   }, [dispatch, employee]);
 
   const handleEditEmployee = useCallback(() => {
     if (formRef.current.reportValidity()) {
-      dispatch(editEmployee(employee));
-      setIsDialogOpen(true);
+      dispatch(editEmployee(employee)).then((result) => {
+        if (result) {
+          setIsDialogOpen(true);
+        }
+      });
     }
   }, [dispatch, employee]);
 
@@ -137,10 +123,6 @@ export const EmployeeForm = () => {
               value={employee.first_name}
               disabled={!isEditing}
               onChange={(event) =>
-                // setEmployee({
-                //   ...employee,
-                //   ["first_name"]: event.target.value,
-                // })
                 inputOnChange("first_name", event.target.value)
               }
             />
@@ -183,7 +165,7 @@ export const EmployeeForm = () => {
               onChange={(event) =>
                 inputOnChange("join_date", event.target.value)
               }
-              InputLabelProps={{ shrink: true }} //con esta prop label queda outline
+              InputLabelProps={{ shrink: true }} //con esta prop, label queda outline
             />
             <TextField
               required
@@ -196,7 +178,7 @@ export const EmployeeForm = () => {
           </div>
 
           <div style={{ display: "flex", gap: "24px" }}>
-            {/* Save, edit or cancel buttons */}
+            {/* Save, edit or cancel btns */}
             {id_employee ? (
               isEditing ? (
                 <>
@@ -236,14 +218,20 @@ export const EmployeeForm = () => {
           </div>
         </Box>
       </Container>
-      {error ? (
-        <div>
+      {error && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginTop: "50px",
+          }}
+        >
           <Alert severity="error">{error}</Alert>
         </div>
-      ) : null}
+      )}
       {
         <Dialog
-          //inicializada en false
+          //inicializado en false
           isOpen={isDialogOpen}
           title={
             id_employee
@@ -251,7 +239,7 @@ export const EmployeeForm = () => {
               : "¡Se ha guardado correctamente el empleado!"
           }
           closeLabel="Aceptar"
-          onClose={handleCloseDialog} //lo que hago al aceptar, elim el empleado
+          onClose={handleCloseDialog} //Al aceptar, se elimina el empleado
         ></Dialog>
       }
     </>

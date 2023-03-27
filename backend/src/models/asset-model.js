@@ -15,17 +15,19 @@ const getAllAssets = async (req) => {
   // Offset: Cálculo de tamaño de pagina
   const offset = page * limit;
 
-  // Clausula where
+  // Armado de Where dinámico
   const where =
     filters &&
     Object.entries(filters)
       .map(([key, value]) => `IFNULL(${key},'') like '%${value}%'`)
       .join(" AND ");
 
+  // Armado de query para saber total de empleados sin page, offset
   const countQuery = `SELECT count(*) as total FROM assets ${
     where ? `WHERE ${where}` : ""
   }`;
 
+  // Armado de query para mostrar en list de empleados (solo 10 por default)
   const finalQuery = `SELECT * FROM assets ${
     where ? `WHERE ${where}` : ""
   } ORDER BY ${orderBy} ${direction} 

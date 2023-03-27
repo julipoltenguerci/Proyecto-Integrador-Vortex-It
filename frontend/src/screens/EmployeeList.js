@@ -21,6 +21,7 @@ import { Delete, Visibility } from "@mui/icons-material";
 import { removeEmployee } from "../actions/employeeActions";
 import { Dialog } from "../commons/Dialog";
 import { PageTitle } from "../commons/PageTitle";
+import debounce from "lodash.debounce";
 
 const columns = [
   { id: "id_employee", label: "ID", minWidth: 50, align: "center" },
@@ -65,7 +66,9 @@ export const EmployeeList = () => {
   const [employeeToDelete, setEmployeeToDelete] = useState();
 
   const [searchFirstName, setSearchFirstName] = useState("");
+
   const [searchLastName, setSearchLastName] = useState("");
+
   const [searchRol, setSearchRol] = useState("");
 
   const totalPaginas = useMemo(
@@ -104,9 +107,20 @@ export const EmployeeList = () => {
     []
   );
 
-  const inputFirstNameOnChange = (value) => setSearchFirstName(value);
-  const inputLastNameOnChange = (value) => setSearchLastName(value);
-  const inputRolOnChange = (value) => setSearchRol(value);
+  const inputFirstNameOnChange = useMemo(
+    () => debounce((value) => setSearchFirstName(value), 500),
+    []
+  );
+
+  const inputLastNameOnChange = useMemo(
+    () => debounce((value) => setSearchLastName(value), 500),
+    []
+  );
+
+  const inputRolOnChange = useMemo(
+    () => debounce((value) => setSearchRol(value), 500),
+    []
+  );
 
   const handleAcceptDialog = useCallback(() => {
     dispatch(removeEmployee(employeeToDelete));

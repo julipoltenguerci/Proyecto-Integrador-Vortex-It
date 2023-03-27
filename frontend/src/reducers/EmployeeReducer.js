@@ -33,17 +33,20 @@ export const employeeReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
+        error: null,
         employees: [
           ...state.employees,
           {
             ...action.payload,
           },
         ],
+        totalEmployees: state.totalEmployees + 1,
       };
     case EDIT_EMPLOYEE:
       return {
         ...state,
         loading: false,
+        error: null,
         employees: state.employees.map((employee) =>
           action.payload.id_employee === employee.id_employee
             ? action.payload
@@ -54,20 +57,24 @@ export const employeeReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
+        error: null,
         employees: state.employees.filter(
           (employee) => action.payload.id_employee !== employee.id_employee
         ),
+        totalEmployees: state.totalEmployees - 1,
       };
     case GET_EMPLOYEE:
       return {
         ...state,
         loading: false,
+        error: null,
         employee: action.payload ? action.payload : getEmptyEmployee(),
       };
     case GET_EMPLOYEES:
       return {
         ...state,
         loading: false,
+        error: null,
         employees: action.payload.rows,
         totalEmployees: action.payload.totalRows,
       };

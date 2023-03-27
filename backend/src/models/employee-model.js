@@ -15,23 +15,26 @@ const getAllEmployees = async (req) => {
   // Offset: Cálculo de tamaño de pagina
   const offset = page * limit;
 
+  // Armado de Where dinámico
   const where =
     filters &&
     Object.entries(filters)
       .map(([key, value]) => `${key} like '%${value}%'`)
       .join(" AND ");
 
+  // Armado de query para saber total de empleados sin page, offset
   const countQuery = `SELECT count(*) as total FROM employees ${
     where ? `WHERE ${where}` : ""
   }`;
 
+  // Armado de query para mostrar en list de empleados (solo 10 por default)
   const finalQuery = `SELECT * FROM employees ${
     where ? `WHERE ${where}` : ""
   } ORDER BY ${orderBy} ${direction} 
   LIMIT ${limit} OFFSET ${offset}`;
 
-  const [rows] = await connection.query(finalQuery);
   const [totalRows] = await connection.query(countQuery);
+  const [rows] = await connection.query(finalQuery);
 
   return { rows, totalRows: totalRows[0].total };
 };

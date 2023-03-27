@@ -34,9 +34,7 @@ export const AssetForm = () => {
   }, [dispatch, id_asset]);
 
   useEffect(() => {
-    if (!error) {
-      setIsEditing(!asset.id_asset);
-    }
+    setIsEditing(!asset.id_asset);
   }, [asset.id_asset]);
 
   // ------------ FUNCTIONS ------------
@@ -54,15 +52,21 @@ export const AssetForm = () => {
 
   const handleAddNewAsset = useCallback(() => {
     if (formRef.current.reportValidity()) {
-      dispatch(addAsset(asset));
-      //setIsDialogOpen(true);
+      dispatch(addAsset(asset)).then((result) => {
+        if (result) {
+          setIsDialogOpen(true);
+        }
+      });
     }
   }, [dispatch, asset]);
 
   const handleEditAsset = useCallback(() => {
     if (formRef.current.reportValidity()) {
-      dispatch(editAsset(asset));
-      //setIsDialogOpen(true);
+      dispatch(editAsset(asset)).then((result) => {
+        if (result) {
+          setIsDialogOpen(true);
+        }
+      });
     }
   }, [dispatch, asset]);
 

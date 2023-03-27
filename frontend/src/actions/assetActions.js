@@ -18,7 +18,7 @@ export const getAssets = (req) => async (dispatch) => {
   try {
     dispatch({ type: LOADING_ASSETS });
 
-    const body = Object.entries(req);
+    const body = Object.entries(req).filter((data) => data[1]);
     let url = "http://localhost:8000/api/v1/assets?";
     for (let i = 0; i < body.length; i++) {
       if (i === body.length - 1) {
@@ -47,7 +47,7 @@ export const getAssets = (req) => async (dispatch) => {
 export const getAsset = (id_asset) => async (dispatch) => {
   try {
     dispatch({ type: LOADING_ASSETS });
-    if (id_asset !== undefined) {
+    if (id_asset) {
       const response = await fetch(
         `http://localhost:8000/api/v1/assets/${id_asset}`
       );
@@ -67,6 +67,8 @@ export const getAsset = (id_asset) => async (dispatch) => {
           payload: "Error obteniendo el activo por id.",
         });
       }
+    } else {
+      dispatch({ type: GET_ASSET });
     }
   } catch (error) {
     dispatch({ type: ERROR_ASSETS, payload: error.message });
@@ -89,6 +91,7 @@ export const addAsset = (assetData) => async (dispatch) => {
       const responseData = await response.json();
 
       dispatch({ type: ADD_ASSET, payload: responseData.data });
+      return Promise.resolve(true);
     } else {
       let err = "";
       const responseData = await response.json();
@@ -102,9 +105,11 @@ export const addAsset = (assetData) => async (dispatch) => {
         type: ERROR_ASSETS,
         payload: "Error agregando el activo. " + err,
       });
+      return Promise.resolve(false);
     }
   } catch (error) {
     dispatch({ type: ERROR_ASSETS, payload: error.message });
+    return Promise.resolve(false);
   }
 };
 
@@ -127,6 +132,7 @@ export const editAsset = (payload) => async (dispatch) => {
       const responseData = await response.json();
 
       dispatch({ type: EDIT_ASSET, payload: responseData });
+      return Promise.resolve(true);
     } else {
       let err = "";
       const responseData = await response.json();
@@ -140,9 +146,11 @@ export const editAsset = (payload) => async (dispatch) => {
         type: ERROR_ASSETS,
         payload: "Error editando el activo. " + err,
       });
+      return Promise.resolve(false);
     }
   } catch (error) {
     dispatch({ type: ERROR_ASSETS, payload: error.message });
+    return Promise.resolve(false);
   }
 };
 // Función para eliminar asset

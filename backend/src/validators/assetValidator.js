@@ -5,7 +5,7 @@ const validateResults = require("../utils/handleValidator");
 
 const createAssetValidator = [
   body("name")
-    .matches(/^[A-Za-z\s]+$/)
+    .matches(/^[\p{L}\s]+$/u)
     .withMessage("NOMBRE debe contener solo letras.")
     .exists()
     .withMessage("NOMBRE es obligatorio")
@@ -16,7 +16,7 @@ const createAssetValidator = [
     .isLength({ min: 3, max: 50 })
     .withMessage("Escriba en NOMBRE un mínimo 3 caracteres y un máximo 50"),
   body("type")
-    .matches(/^[A-Za-z\s]+$/)
+    .matches(/^[\p{L}\s]+$/u)
     .withMessage("TIPO debe contener solo letras.")
     .exists()
     .withMessage("TIPO es obligatorio")
@@ -32,7 +32,7 @@ const createAssetValidator = [
     },
   }),
   body("brand")
-    .matches(/^[A-Za-z\s]+$/)
+    .matches(/^[\p{L}\s]+$/u)
     .withMessage("MARCA debe contener solo letras.")
     .exists()
     .withMessage("MARCA es obligatorio")
@@ -68,7 +68,7 @@ const updateAssetValidator = [
 
     .notEmpty()
     .withMessage("NOMBRE no debe quedar vacio")
-    .matches(/^[A-Za-z\s]+$/)
+    .matches(/^[\p{L}\s]+$/u)
     .withMessage("NOMBRE debe contener solo letras.")
     .isString()
     .withMessage("El valor de NOMBRE no es válido. Debe ser texto.")

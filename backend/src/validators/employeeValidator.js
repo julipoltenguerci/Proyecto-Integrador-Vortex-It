@@ -5,7 +5,7 @@ const validateResults = require("../utils/handleValidator");
 
 const createEmployeeValidator = [
   body("first_name")
-    .matches(/^[A-Za-z\s]+$/)
+    .matches(/^[\p{L}\s]+$/u)
     .withMessage("NOMBRE debe contener solo letras.")
     .exists()
     .withMessage("NOMBRE es obligatorio")
@@ -16,7 +16,7 @@ const createEmployeeValidator = [
     .isLength({ min: 3, max: 50 })
     .withMessage("Escriba en NOMBRE un mínimo de 3 caracteres y un máximo 50."),
   body("last_name")
-    .matches(/^[A-Za-z\s]+$/)
+    .matches(/^[\p{L}\s]+$/u)
     .withMessage("APELLIDO debe contener solo letras.")
     .exists()
     .withMessage("APELLIDO es obligatorio.")
@@ -54,8 +54,7 @@ const createEmployeeValidator = [
   body("rol")
     .exists()
     .withMessage("ROL es obligatorio")
-    .matches(/^[A-Za-z\s]+$/)
-
+    .matches(/^[\p{L}\s]+$/u)
     .withMessage("ROL debe contener solo letras")
     .notEmpty()
     .withMessage("ROL no debe quedar vacio")
@@ -71,7 +70,7 @@ const createEmployeeValidator = [
 const updateEmployeeValidator = [
   body("first_name")
     .optional()
-    .matches(/^[A-Za-z\s]+$/)
+    .matches(/^[\p{L}\s]+$/u)
     .withMessage("NOMBRE debe contener solo letras.")
     .notEmpty()
     .withMessage("NOMBRE no debe quedar vacio")
@@ -107,7 +106,7 @@ const updateEmployeeValidator = [
     .withMessage("FECHA DE CONTRATACION debe ser una fecha(aaaa-mm-dd)"),
   body("rol")
     .optional()
-    .matches(/^[A-Za-z\s]+$/)
+    .matches(/^[\p{L}\s]+$/u)
     .withMessage("En ROL debe escribir solo letras")
     .notEmpty()
     .withMessage("ROL no debe quedar vacio")

@@ -34,17 +34,20 @@ export const assetReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
+        error: null,
         assets: [
           ...state.assets,
           {
             ...action.payload,
           },
         ],
+        totalAssets: state.totalAssets + 1,
       };
     case EDIT_ASSET:
       return {
         ...state,
         loading: false,
+        error: null,
         assets: state.assets.map((asset) =>
           action.payload.id_asset === asset.id_asset ? action.payload : asset
         ),
@@ -53,20 +56,24 @@ export const assetReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
+        error: null,
         assets: state.assets.filter(
           (asset) => action.payload.id_asset !== asset.id_asset
         ),
+        totalAssets: state.totalAssets - 1,
       };
     case GET_ASSET:
       return {
         ...state,
         loading: false,
+        error: null,
         asset: action.payload ? action.payload : getEmptyAsset(),
       };
     case GET_ASSETS:
       return {
         ...state,
         loading: false,
+        error: null,
         assets: action.payload.rows,
         totalAssets: action.payload.totalRows,
       };
