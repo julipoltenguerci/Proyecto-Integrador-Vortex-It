@@ -118,6 +118,7 @@ export const addAsset = (assetData) => async (dispatch) => {
 export const editAsset = (payload) => async (dispatch) => {
   try {
     dispatch({ type: LOADING_ASSETS });
+    console.log(payload);
     const response = await fetch(
       `http://localhost:8000/api/v1/assets/${payload.id_asset}`,
       {

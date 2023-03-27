@@ -223,6 +223,7 @@ export const EmployeeForm = () => {
           style={{
             display: "flex",
             alignItems: "center",
+            justifyContent: "center",
             marginTop: "50px",
           }}
         >

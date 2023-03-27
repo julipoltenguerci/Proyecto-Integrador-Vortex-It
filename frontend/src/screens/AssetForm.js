@@ -24,7 +24,9 @@ export const AssetForm = () => {
   const formRef = useRef();
 
   const asset = useSelector((state) => state.assetsSlice.asset);
+
   const error = useSelector((state) => state.assetsSlice.error);
+
   const [isEditing, setIsEditing] = useState(true);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -237,7 +239,7 @@ export const AssetForm = () => {
               : "¡Se ha guardado correctamente el activo!"
           }
           closeLabel="Aceptar"
-          onClose={handleCloseDialog} //lo que hago al aceptar, elim el activo
+          onClose={handleCloseDialog} //al aceptar, elimino el activo
         ></Dialog>
       }
     </>
